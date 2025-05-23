@@ -193,7 +193,9 @@ aws apigatewayv2 get-apis $REGION_FLAG --query 'Items[*].[ApiId,Name,ProtocolTyp
 echo -e "\n📮 SQS QUEUES:"
 aws sqs list-queues $REGION_FLAG --query 'QueueUrls' --output table
 
-if [ "$(aws sqs list-queues $REGION_FLAG --query 'length(QueueUrls)')" -gt 0 ]; then
+# Check if queues exist by counting the output lines (safer than using JMESPath length())
+QUEUES=$(aws sqs list-queues $REGION_FLAG --output text)
+if [ -n "$QUEUES" ]; then
     echo -e "\n📮 SQS QUEUES DETALLE:"
     for queue in $(aws sqs list-queues $REGION_FLAG --query 'QueueUrls[]' --output text); do
         queue_name=$(basename $queue)
